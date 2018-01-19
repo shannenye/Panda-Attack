@@ -1,4 +1,4 @@
-Attack of the Pandas!
+Panda Attack!
 
 Your Panda caretaker is stuck in the middle of the zoo and he's just run out of bamboo!
 Use the floating arrow to shoo the hungry pandas away before they reach the caretaker. If

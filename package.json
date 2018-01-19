@@ -4,10 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "build-client": "webpack",
-    "build-client-watch": "webpack -w",
     "start": "node ./app.js",
-    "start-dev": "NODE_ENV='development' npm run build-client-watch & npm run start-server",
+    "start-dev": "NODE_ENV='development' npm run start-server",
     "start-server": "nodemon server -e html,js,scss --ignore public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/shannenye/stackathon.git"
   },
-  "author": "",
+  "author": "Shannen Ye",
   "license": "ISC",
   "dependencies": {
     "babel-loader": "^7.1.2",
