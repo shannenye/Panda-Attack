@@ -23,30 +23,54 @@ function create() {
     person = game.add.sprite(450, 250, 'zookeeper');
     person.width = 100;
     person.height = 100;
+    person.health = 100;
+
+    game.physics.enable(person)
+    person.body.immovable = true;
 
     swatter = game.add.sprite(400, 300, 'swatter');
     swatter.width = 90;
     swatter.height = 80;
-    swatter.anchor.setTo(0.5, 0.5);
+    swatter.anchor.setTo(0, 0);
 
     pandas = game.add.emitter(0, 0, 250);
-    pandas.makeParticles('pandas', 200, 200, true, true);
+    pandas.makeParticles('pandas', 10, 200, true, true);
     pandas.maxParticleSpeed.setTo(200, -400);
     pandas.bounce.setTo(1, 1);
     pandas.angularDrag = 30;
     pandas.start(false, 8000, 400);
-    //  Enable Arcade Physics for the sprite
-    game.physics.enable(swatter, Phaser.Physics.ARCADE);
+    pandas.lifespan = 0;
 
-    //  Tell it we don't want physics to manage the rotation
+    game.physics.enable(swatter);
+
+
     swatter.body.allowRotation = false;
 }
 
 function update() {
     swatter.rotation = game.physics.arcade.moveToPointer(swatter, 60, game.input.activePointer, 500);
+
+    // game.physics.arcade.collide(pandas, person, () => {
+
+    //     person.damage(1);
+
+    // })
+
+    game.physics.arcade.collide(pandas, person, () => {
+        person.damage(1);
+    })
+
+    pandas.children.forEach(child => {
+        // console.log(pandas)
+        game.physics.arcade.collide( swatter, child, () => {
+            child.kill();
+        })
+    })
+
+
+
 }
 
 function render() {
-    game.debug.spriteInfo(swatter, 32, 32);
-    game.physics.arcade.collide(pandas);
+    // game.debug.spriteInfo(swatter, 32, 32);
 }
