@@ -6,7 +6,7 @@ var swatter;
 var person;
 var pandas;
 var beastPanda;
-var score = 10;
+var score = 50;
 var scoreText;
 var timer;
 var total = 1000;
@@ -72,9 +72,9 @@ function create() {
 
     beastPanda = game.add.emitter(1000, 600, 250);
     beastPanda.makeParticles('beastPanda', 1000, 10, true, true);
-    beastPanda.maxParticleSpeed.setTo(200, -400);
+    beastPanda.maxParticleSpeed.setTo(200, -800);
     beastPanda.bounce.setTo(1, 1);
-    beastPanda.angularDrag = 30;
+    beastPanda.angularDrag = 100;
     beastPanda.start(false, 8000, 400);
     beastPanda.lifespan = 0;
 
@@ -85,15 +85,17 @@ function create() {
 function update() {
     swatter.rotation = game.physics.arcade.moveToPointer(swatter, 1000, game.input.activePointer, 100);
 
-    if (total !== 0 && person.health !== 0) {
+    if (total > 0 && score > 0) {
         total--
-    } else if (total !== 0 && person.health === 0) {
+    }
+    else if (total > 0 && score <= 0) {
+        person.destroy();
         timer.destroy();
         pandas.destroy();
         beastPanda.destroy();
         swatter.destroy();
         gameOver.revive();
-    } else if (total === 0 && person.health !== 0) {
+    } else if (total <= 0 && score !== 0) {
         person.destroy();
         pandas.destroy();
         beastPanda.destroy();
@@ -118,21 +120,38 @@ function update() {
             person.tint = 0xffffff;
         }), 20);
         person.tint = 0xff0000
-            person.damage(1);
-            score -= 1;
-        })
+        person.damage(1);
+        score -= 1;
+    })
 
     game.physics.arcade.collide(beastPanda, person, () => {
-            setTimeout((() => {
-                person.tint = 0xffffff;
-            }), 10);
-            person.tint = 0xff0000
+        setTimeout((() => {
+            person.tint = 0xffffff;
+        }), 10);
+        person.tint = 0xff0000
+        // if (person.health > 10 || score > 10) {
+            if (person.health < 10 && score < 10) {
+                person.health = 0;
+                score = 0;
+            } else {
                 person.damage(10);
-                score -= 1;
-        })
+                score -= 10;
+            }
+
+        // } else if (person.health < 10 || score < 10) {
+            // score = 0;
+            // person.health = 0;
+            // person.destroy();
+            // timer.destroy();
+            // pandas.destroy();
+            // beastPanda.destroy();
+            // swatter.destroy();
+            // gameOver.revive();
+        // }
+    })
 }
 
 function render() {
-    game.debug.text(`Life Remaining: ${person.health}`, 750, 40);
+    game.debug.text(`Life Remaining: ${score}`, 750, 40);
     game.debug.text(`Time Remaining: ${total}`, 750, 60);
 }
