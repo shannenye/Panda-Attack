@@ -95,6 +95,7 @@ function update() {
         beastPanda.destroy();
         swatter.destroy();
         gameOver.revive();
+
     } else if (total <= 0 && score !== 0) {
         person.destroy();
         pandas.destroy();
