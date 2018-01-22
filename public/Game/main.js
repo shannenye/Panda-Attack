@@ -1,25 +1,27 @@
 var game = new Phaser.Game(1000, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 var backgroundMusic;
-var pandaPersonCollision;
+var gameOver;
+var youWin;
 var swatter;
 var person;
 var pandas;
-var pandas2;
-var gameOver = {end: false};
-var score = 100;
+var beastPanda;
+var score = 10;
 var scoreText;
 var timer;
-var total = 2000;
+var total = 1000;
 
 function preload() {
     game.load.image('background', '../images/bamboo.jpg');
+    game.load.spritesheet('gameOver', '../images/gameOver.png');
+    game.load.spritesheet('youWin', '../images/youWin.png');
     game.load.image('zookeeper', '../images/zookeeper.png');
     game.load.image('heart', '../images/heart.png');
     game.load.audio('gameSound', '../audio/gameSound.mp3');
     game.load.audio('meow', '../audio/meow1.mp3');
     game.load.image('swatter', '../images/pandaSwatter.png');
     game.load.spritesheet('pandas', '../images/pandas.png');
-    game.load.image('gameOver', '../images/Game_Over.png');
+    game.load.spritesheet('beastPanda', '../images/beastPanda.png');
 
 }
 
@@ -31,13 +33,23 @@ function create() {
     background.height = 600;
     background.anchor.setTo(0.5, 0.5);
 
+    gameOver = game.add.sprite(450, 250, 'gameOver');
+    gameOver.width = 650;
+    gameOver.height = 500;
+    gameOver.anchor.setTo(0.40, 0.45);
+    gameOver.kill();
+
+    youWin = game.add.sprite(450, 250, 'youWin');
+    youWin.anchor.setTo(0.40, 0.45);
+    youWin.kill();
+
     backgroundMusic = game.add.audio('gameSound')
     backgroundMusic.play();
 
     person = game.add.sprite(450, 250, 'zookeeper');
     person.width = 100;
     person.height = 100;
-    person.health = 100;
+    person.health = 50;
 
     game.physics.enable(person)
     person.body.immovable = true;
@@ -58,24 +70,48 @@ function create() {
     pandas.start(false, 8000, 400);
     pandas.lifespan = 0;
 
-    pandas2 = game.add.emitter(1000, 600, 250);
-    pandas2.makeParticles('pandas', 1000, 100, true, true);
-    pandas2.maxParticleSpeed.setTo(200, -400);
-    pandas2.bounce.setTo(1, 1);
-    pandas2.angularDrag = 30;
-    pandas2.start(false, 8000, 400);
-    pandas2.lifespan = 0;
+    beastPanda = game.add.emitter(1000, 600, 250);
+    beastPanda.makeParticles('beastPanda', 1000, 10, true, true);
+    beastPanda.maxParticleSpeed.setTo(200, -400);
+    beastPanda.bounce.setTo(1, 1);
+    beastPanda.angularDrag = 30;
+    beastPanda.start(false, 8000, 400);
+    beastPanda.lifespan = 0;
 
     game.physics.enable(swatter);
-
     swatter.body.allowRotation = false;
-
-    scoreText = game.add.text(700, 10, `Life Remaining: ${person.health}`, { fontSize: '32px', fill: '#000' });
-    scoreText.addColor("#fff", 0);
 }
 
 function update() {
     swatter.rotation = game.physics.arcade.moveToPointer(swatter, 1000, game.input.activePointer, 100);
+
+    if (total !== 0 && person.health !== 0) {
+        total--
+    } else if (total !== 0 && person.health === 0) {
+        timer.destroy();
+        pandas.destroy();
+        beastPanda.destroy();
+        swatter.destroy();
+        gameOver.revive();
+    } else if (total === 0 && person.health !== 0) {
+        person.destroy();
+        pandas.destroy();
+        beastPanda.destroy();
+        swatter.destroy();
+        youWin.revive();
+    }
+
+    pandas.children.forEach(child => {
+        game.physics.arcade.collide( swatter, child, () => {
+            child.kill();
+        })
+    })
+
+    beastPanda.children.forEach(child => {
+        game.physics.arcade.collide( swatter, child, () => {
+            child.kill();
+        })
+    })
 
     game.physics.arcade.collide(pandas, person, () => {
         setTimeout((() => {
@@ -86,54 +122,17 @@ function update() {
             score -= 1;
         })
 
-    game.physics.arcade.collide(pandas2, person, () => {
+    game.physics.arcade.collide(beastPanda, person, () => {
             setTimeout((() => {
                 person.tint = 0xffffff;
-                // person.tint = 0xff0000
             }), 10);
-            // person.tint = 0xffffff;
             person.tint = 0xff0000
-                person.damage(1);
+                person.damage(10);
                 score -= 1;
         })
-
-    scoreText.text = `Life Remaining: ${score}`;
-
-    pandas.children.forEach(child => {
-        game.physics.arcade.collide( swatter, child, () => {
-            child.kill();
-        })
-    })
-
-    pandas2.children.forEach(child => {
-        game.physics.arcade.collide( swatter, child, () => {
-            child.kill();
-        })
-    })
-
-    if (total && person.health) {
-        total--
-    } else if (total && person.health === 0) {
-        // game over (stop time)
-        game.stop(null, true)
-    }
-    // else if (!total && person.health !== 0) {
-
-    // } // you win! Stop time (stop game)
 }
 
 function render() {
-    game.debug.text(`Time Remaining: ${total}`, 700, 80);
-    // game.debug.text(`Life Remaining: ${}`);
-
+    game.debug.text(`Life Remaining: ${person.health}`, 750, 40);
+    game.debug.text(`Time Remaining: ${total}`, 750, 60);
 }
-
-
-
-// want to add GAME OVER if life remaining === 0 AND time remaining !== 0
-// want to add YOU WIN if life remaining !== 0 AND time remaining === 0
-// want to add start button
-
-// if (total && person.health === 0) gameOver and stop time
-// else if (!total && person.health !== 0) you win and stop life
-// else if (total && person.health) total--
