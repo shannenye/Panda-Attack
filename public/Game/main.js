@@ -7,9 +7,9 @@ var person;
 var pandas;
 var beastPanda;
 var score = 50;
-var scoreText;
 var timer;
 var total = 1000;
+var bitPerson;
 
 function preload() {
     game.load.image('background', '../images/bamboo.jpg');
@@ -120,6 +120,8 @@ function update() {
             person.tint = 0xffffff;
         }), 20);
         person.tint = 0xff0000
+        bitPerson = game.add.audio('meow');
+        bitPerson.play()
         person.damage(1);
         score -= 1;
     })
@@ -129,7 +131,8 @@ function update() {
             person.tint = 0xffffff;
         }), 10);
         person.tint = 0xff0000
-        // if (person.health > 10 || score > 10) {
+        bitPerson = game.add.audio('meow');
+        bitPerson.play()
             if (person.health < 10 && score < 10) {
                 person.health = 0;
                 score = 0;
@@ -137,17 +140,6 @@ function update() {
                 person.damage(10);
                 score -= 10;
             }
-
-        // } else if (person.health < 10 || score < 10) {
-            // score = 0;
-            // person.health = 0;
-            // person.destroy();
-            // timer.destroy();
-            // pandas.destroy();
-            // beastPanda.destroy();
-            // swatter.destroy();
-            // gameOver.revive();
-        // }
     })
 }
 
